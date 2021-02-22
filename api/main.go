@@ -1,19 +1,25 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/shkryob/gochat/config"
+	"github.com/shkryob/gochat/db"
+	"github.com/shkryob/gochat/handler"
+	"github.com/shkryob/gochat/router"
+	"github.com/shkryob/gochat/store"
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
-}
-
-func handleRequests() {
-	http.HandleFunc("/api/hello/", hello)
-	http.ListenAndServe(":8081", nil)
-}
-
 func main() {
-	handleRequests()
+	r := router.New()
+
+	v1 := r.Group("/api")
+
+	d := db.New()
+	db.AutoMigrate(d)
+	configuration := config.ReadConfig()
+
+	userStore := store.NewUserStore(d)
+	chatStore := store.NewChatStore(d)
+	h := handler.NewHandler(configuration, userStore, chatStore)
+	h.Register(v1)
+	r.Logger.Fatal(r.Start(":8081"))
 }
