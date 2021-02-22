@@ -12,7 +12,7 @@ import (
 )
 
 func New() *gorm.DB {
-	db, err := gorm.Open("mysql", "chat:secret@tcp(db:3306)/chat")
+	db, err := gorm.Open("mysql", "chat:secret@tcp(db:3306)/chat?parseTime=true")
 	if err != nil {
 		log.Fatal("storage err: ", err)
 	}
