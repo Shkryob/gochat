@@ -1,0 +1,4 @@
+html, body, #app, .v-application--wrap, main, .v-main__wrap {
+    height: 100%;
+    overflow: hidden;
+}
