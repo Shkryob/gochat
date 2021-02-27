@@ -52,10 +52,7 @@
             </v-col>
             <v-col cols="2" class="pt-5">
               <v-btn block color="indigo" dark>
-                <v-icon
-                    left
-
-                >
+                <v-icon left>
                   mdi-send
                 </v-icon>
                 Send

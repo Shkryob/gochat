@@ -2,20 +2,18 @@
   <v-app>
     <Header/>
     <v-main>
-      <Chat/>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Chat from "./components/Chat";
 import Header from "./components/Header";
 
 export default {
   name: 'App',
 
   components: {
-    Chat,
     Header,
   },
 
