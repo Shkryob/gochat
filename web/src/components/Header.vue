@@ -20,7 +20,7 @@
 
     <v-spacer></v-spacer>
 
-    <router-link :to="{name: 'profile'}">
+    <router-link :to="{name: 'profile'}" v-if="sharedState.user">
       <span class="mr-2">{{sharedState.user.username}}</span>
       <v-icon>mdi-account-circle</v-icon>
     </router-link>
