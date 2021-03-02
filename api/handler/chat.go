@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -61,7 +62,14 @@ func (handler *Handler) CreateChat(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusUnauthorized, utils.NewError(errors.New("unauthorized action")))
 	}
 
+	if err := handler.ValidateParticipants(req.Chat.Participants); err != nil {
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+	}
+
 	err := handler.chatStore.CreateChat(&chat)
+
+	handler.chatStore.ReplaceParticipants(&chat, req.Chat.Participants)
+
 	if err != nil {
 		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
 	}
@@ -229,4 +237,16 @@ func (handler *Handler) UpdateMessage(context echo.Context) error {
 	}
 
 	return utils.ResponseByContentType(context, http.StatusCreated, newMessageResponse(context, &cm))
+}
+
+func (handler *Handler) ValidateParticipants(participants []uint) error  {
+	if len(participants) < 1 {
+		return fmt.Errorf("chat should have at least one participant")
+	}
+
+	if len(participants) > handler.config.MaxChatParticipants {
+		return fmt.Errorf("chat room may have maximum %v participants", handler.config.MaxChatParticipants)
+	}
+
+	return nil
 }

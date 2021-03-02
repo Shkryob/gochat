@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const store = {
     debug: true,
     localStorage: window.localStorage,
@@ -19,6 +21,14 @@ const store = {
         if (this.debug) {
             console.log('Init ', this.state.user);
         }
+
+        axios.interceptors.request.use((config) => {
+            if (this.state.user) {
+                config.headers.Authorization = 'Token ' + this.state.user.token;
+            }
+
+            return config;
+        });
     },
 
     setUser (newValue) {

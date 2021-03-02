@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/shkryob/gochat/model"
 )
@@ -18,7 +19,7 @@ func NewChatStore(db *gorm.DB) *ChatStore {
 func (chatStore *ChatStore) GetById(id uint) (*model.Chat, error) {
 	var m model.Chat
 
-	err := chatStore.db.Where(id).Preload("User").First(&m).Error
+	err := chatStore.db.Where(id).Preload("Users").Preload("Admin").First(&m).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil
@@ -39,6 +40,8 @@ func (chatStore *ChatStore) List(offset, limit int) ([]model.Chat, int, error) {
 	chatStore.db.Model(&chats).Count(&count)
 	chatStore.db.Offset(offset).
 		Limit(limit).
+		Preload("Users").
+		Preload("Admin").
 		Order("created_at desc").Find(&chats)
 
 	return chats, count, nil
@@ -51,7 +54,7 @@ func (chatStore *ChatStore) CreateChat(a *model.Chat) error {
 		return err
 	}
 
-	if err := tx.Where(a.ID).Preload("User").Find(&a).Error; err != nil {
+	if err := tx.Where(a.ID).Preload("Admin").Preload("Users").Find(&a).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -66,7 +69,32 @@ func (chatStore *ChatStore) UpdateChat(a *model.Chat) error {
 		return err
 	}
 
-	if err := tx.Where(a.ID).Preload("User").Find(a).Error; err != nil {
+	if err := tx.Where(a.ID).Preload("Admin").Preload("Users").Find(a).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func (chatStore *ChatStore) ReplaceParticipants(a *model.Chat, participants []uint) error {
+	tx := chatStore.db.Begin()
+	if err := tx.Model(a).Update(a).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	var users []model.User
+
+	for _, id := range participants {
+		userModel := model.User{}
+		userModel.Model.ID = id
+		fmt.Print(id)
+		users = append(users, userModel)
+	}
+
+	tx.Model(a).Association("Users").Replace(users)
+
+	if err := tx.Where(a.ID).Preload("Admin").Preload("Users").Find(a).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

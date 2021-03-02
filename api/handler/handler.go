@@ -17,6 +17,7 @@ type ChatStore interface {
 	CreateChat(*model.Chat) error
 	UpdateChat(*model.Chat) error
 	DeleteChat(*model.Chat) error
+	ReplaceParticipants(*model.Chat,[]uint) error
 
 	AddMessage(*model.Chat, *model.Message) error
 	GetMessagesByChatId(uint) ([]model.Message, error)
@@ -31,6 +32,7 @@ type UserStore interface {
 	GetByUsername(string) (*model.User, error)
 	Create(*model.User) error
 	Update(*model.User) error
+	List(int, int, string) ([]model.User, int, error)
 }
 
 func NewHandler(config config.Configuration, us UserStore, cs ChatStore) *Handler {

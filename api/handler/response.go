@@ -12,8 +12,10 @@ type chatResponse struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
 	Admin  struct {
+		ID uint "json:id"
 		Username string `json:"username"`
 	} `json:"admin"`
+	Participants      []*simplifiedUserResponse `json:"participants"`
 }
 
 type singleChatResponse struct {
@@ -25,11 +27,24 @@ type chatListResponse struct {
 	ChatsCount int             `json:"chatsCount"`
 }
 
+type userListResponse struct {
+	Users      []*simplifiedUserResponse `json:"users"`
+	UsersCount int             `json:"usersCount"`
+}
+
 func newChatResponse(c echo.Context, ch *model.Chat) *singleChatResponse {
 	chat := new(chatResponse)
 	chat.ID = ch.ID
 	chat.Title = ch.Title
 	chat.Admin.Username = ch.Admin.Username
+	chat.Admin.ID = ch.Admin.ID
+	chat.Participants = make([]*simplifiedUserResponse, 0)
+	for _, c := range ch.Users {
+		participant := new(simplifiedUserResponse)
+		participant.ID = c.ID
+		participant.Username = c.Username
+		chat.Participants = append(chat.Participants, participant)
+	}
 	return &singleChatResponse{chat}
 }
 
@@ -41,6 +56,14 @@ func newChatListResponse(chats []model.Chat, count int) *chatListResponse {
 		chat.ID = c.ID
 		chat.Title = c.Title
 		chat.Admin.Username = c.Admin.Username
+		chat.Admin.ID = c.Admin.ID
+		chat.Participants = make([]*simplifiedUserResponse, 0)
+		for _, ch := range c.Users {
+			participant := new(simplifiedUserResponse)
+			participant.ID = ch.ID
+			participant.Username = ch.Username
+			chat.Participants = append(chat.Participants, participant)
+		}
 		r.Chats = append(r.Chats, chat)
 	}
 	r.ChatsCount = count
@@ -99,10 +122,29 @@ type userResponse struct {
 	} `json:"user"`
 }
 
+type simplifiedUserResponse struct {
+	ID   	 uint   `json:"id"`
+	Username string `json:"username"`
+}
+
 func newUserResponse(u *model.User) *userResponse {
 	r := new(userResponse)
 	r.User.Username = u.Username
 	r.User.Email = u.Email
 	r.User.Token = utils.GenerateJWT(u.ID)
+	return r
+}
+
+func newUserListResponse(users []model.User, count int) *userListResponse {
+	r := new(userListResponse)
+	r.Users = make([]*simplifiedUserResponse, 0)
+	for _, u := range users {
+		user := new(simplifiedUserResponse)
+
+		user.Username = u.Username
+		user.ID = u.ID
+		r.Users = append(r.Users, user)
+	}
+	r.UsersCount = count
 	return r
 }

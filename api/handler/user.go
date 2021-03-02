@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/shkryob/gochat/model"
@@ -56,4 +57,27 @@ func (handler *Handler) CurrentUser(context echo.Context) error {
 	}
 
 	return utils.ResponseByContentType(context, http.StatusOK, newUserResponse(u))
+}
+
+func (handler *Handler) GetUsers(context echo.Context) error {
+	var (
+		users []model.User
+		count int
+	)
+
+	offset, err := strconv.Atoi(context.QueryParam("offset"))
+	if err != nil {
+		offset = 0
+	}
+
+	limit, err := strconv.Atoi(context.QueryParam("limit"))
+	if err != nil {
+		limit = 20
+	}
+
+	search := context.QueryParam("search")
+
+	users, count, err = handler.userStore.List(offset, limit, search)
+
+	return utils.ResponseByContentType(context, http.StatusOK, newUserListResponse(users, count))
 }

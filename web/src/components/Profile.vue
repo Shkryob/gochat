@@ -37,7 +37,7 @@ import api from "../api";
 import store from '../store';
 
 export default {
-  name: 'Login',
+  name: 'Profile',
 
   data: function () {
     return {

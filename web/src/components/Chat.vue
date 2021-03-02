@@ -10,12 +10,12 @@
         <div class="chat-list">
         <v-list>
           <v-list-item-group v-model="selectedItem" color="primary">
-            <v-list-item v-for="(item, i) in items" :key="i">
+            <v-list-item v-for="chat in chats" :key="chat.id">
               <v-list-item-icon>
-                <v-icon v-text="item.icon"></v-icon>
+                <v-icon v-text="chat.icon"></v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="item.text"></v-list-item-title>
+                <v-list-item-title v-text="getChatTitle(chat)"></v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>
@@ -35,15 +35,11 @@
     >
       <v-row>
         <v-col cols="4" class="text-center">
-          <v-btn
-              fab
-              dark
-              color="indigo"
-          >
+          <router-link :to="{name: 'users'}">
             <v-icon dark>
               mdi-plus
             </v-icon>
-          </v-btn>
+          </router-link>
         </v-col>
         <v-col cols="8">
           <v-row>
@@ -65,7 +61,7 @@
   </v-container>
 </template>
 
-<style>
+<style scoped>
 .container.container--fluid,
 .container.container--fluid > .row {
   height: 100%;
@@ -103,29 +99,12 @@
 </style>
 
 <script>
+import api from "../api";
+
 export default {
   data: () => ({
     selectedItem: 1,
-    items: [
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-      {text: 'Lorem ipsum dolor sit amet.', icon: 'mdi-clock'},
-      {text: 'Species warp on peace at hyperspace!', icon: 'mdi-account'},
-      {text: 'Meet, scotty, solid advice!', icon: 'mdi-flag'},
-    ],
+    chats: [],
 
     messages: [
       {text: 'Wildly convert a ship.', color: 'yellow'},
@@ -174,5 +153,26 @@ export default {
       {text: 'Teleporters go with metamorphosis!', color: 'green', reverse: true},
     ]
   }),
+
+  created() {
+    this.getChats();
+  },
+
+  methods: {
+    getChats: function () {
+      (new api()).getChats().then((response) => {
+        this.chats = response.data.chats;
+      });
+    },
+    getChatTitle(chat) {
+      if (chat.title) {
+        return chat.title;
+      } else {
+        return chat.participants.map((user) => {
+          return user.username;
+        }).join(', ');
+      }
+    }
+  }
 }
 </script>

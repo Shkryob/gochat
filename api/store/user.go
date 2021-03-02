@@ -55,3 +55,18 @@ func (us *UserStore) GetByUsername(username string) (*model.User, error) {
 func (us *UserStore) Update(u *model.User) error {
 	return us.db.Model(u).Update(u).Error
 }
+
+func (us *UserStore) List(offset, limit int, search string) ([]model.User, int, error) {
+	var (
+		users []model.User
+		count int
+	)
+
+	us.db.Model(&users).Where("username LIKE ?", "%" + search + "%").Count(&count)
+	us.db.Offset(offset).
+		Limit(limit).
+		Where("username LIKE ?", "%" + search + "%").
+		Order("created_at desc").Find(&users)
+
+	return users, count, nil
+}

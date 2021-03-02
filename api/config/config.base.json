@@ -1,4 +1,5 @@
 {
   "AuthRedirectUrl": "/",
-  "SqlUrl": "mysql://"
+  "SqlUrl": "mysql://",
+  "MaxChatParticipants": 5
 }
