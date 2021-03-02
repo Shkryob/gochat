@@ -26,6 +26,7 @@ func (handler *Handler) Register(v1 *echo.Group) {
 
 	messages := v1.Group("/chats/:chat_id/messages")
 
+	messages.GET("", handler.GetMessages, jwtMiddleware)
 	messages.POST("", handler.AddMessage, jwtMiddleware)
 	messages.DELETE("/:message_id", handler.DeleteMessage, jwtMiddleware)
 	messages.PUT("/:message_id", handler.UpdateMessage, jwtMiddleware)

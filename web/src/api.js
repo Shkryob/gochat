@@ -51,10 +51,12 @@ const api = function () {
             .get(basePath + 'chats/' + chatID + '/messages');
     };
 
-    this.sendMessage = (chatID, message) => {
+    this.sendMessage = (chatID, body) => {
         return axios
             .post(basePath + 'chats/' + chatID + '/messages', {
-                message
+                message: {
+                    body
+                }
             });
     };
 }

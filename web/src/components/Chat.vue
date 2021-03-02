@@ -23,8 +23,8 @@
         </div>
       </v-col>
       <v-col cols="8" class="message-list">
-        <v-row v-for="(message, i) in messages" :key="i" class="pa-1">
-          <v-chip :color="message.color">{{ message.text }}</v-chip>
+        <v-row v-for="message in messages" :key="message.id" class="pa-1">
+          <v-chip :color="message.color">{{ message.user.username }}: {{ message.body }}</v-chip>
         </v-row>
       </v-col>
     </v-row>
@@ -44,10 +44,10 @@
         <v-col cols="8">
           <v-row>
             <v-col cols="10">
-              <v-text-field label="Message"/>
+              <v-text-field label="Message" v-model="messageText"/>
             </v-col>
             <v-col cols="2" class="pt-5">
-              <v-btn block color="indigo" dark>
+              <v-btn block color="indigo" dark @click="sendMessage">
                 <v-icon left>
                   mdi-send
                 </v-icon>
@@ -103,55 +103,10 @@ import api from "../api";
 
 export default {
   data: () => ({
-    selectedItem: 1,
+    selectedItem: null,
     chats: [],
-
-    messages: [
-      {text: 'Wildly convert a ship.', color: 'yellow'},
-      {text: 'Hypnosis, attitude, and paralysis.', color: 'yellow'},
-      {
-        text: 'When the particle meets for deep space, all captains examine ancient, interstellar phenomenans.',
-        color: 'yellow'
-      },
-      {text: 'Fly without love, and we won’t imitate a phenomenan.', color: 'green'},
-      {text: 'Assimilation at the holodeck was the mystery of advice, raised to a final hur\'q.', color: 'green'},
-      {text: 'The planet is more ferengi now than species. ugly and patiently final.', color: 'green'},
-      {text: 'Why does the teleporter walk?', color: 'green'},
-      {text: 'Teleporters go with metamorphosis!', color: 'green'},
-      {text: 'Wildly convert a ship.', color: 'yellow'},
-      {text: 'Hypnosis, attitude, and paralysis.', color: 'yellow'},
-      {
-        text: 'When the particle meets for deep space, all captains examine ancient, interstellar phenomenans.',
-        color: 'yellow'
-      },
-      {text: 'Fly without love, and we won’t imitate a phenomenan.', color: 'green'},
-      {text: 'Assimilation at the holodeck was the mystery of advice, raised to a final hur\'q.', color: 'green'},
-      {text: 'The planet is more ferengi now than species. ugly and patiently final.', color: 'green'},
-      {text: 'Why does the teleporter walk?', color: 'green'},
-      {text: 'Teleporters go with metamorphosis!', color: 'green'},
-      {text: 'Wildly convert a ship.', color: 'yellow'},
-      {text: 'Hypnosis, attitude, and paralysis.', color: 'yellow'},
-      {
-        text: 'When the particle meets for deep space, all captains examine ancient, interstellar phenomenans.',
-        color: 'yellow'
-      },
-      {text: 'Fly without love, and we won’t imitate a phenomenan.', color: 'green'},
-      {text: 'Assimilation at the holodeck was the mystery of advice, raised to a final hur\'q.', color: 'green'},
-      {text: 'The planet is more ferengi now than species. ugly and patiently final.', color: 'green'},
-      {text: 'Why does the teleporter walk?', color: 'green'},
-      {text: 'Teleporters go with metamorphosis!', color: 'green'},
-      {text: 'Wildly convert a ship.', color: 'yellow'},
-      {text: 'Hypnosis, attitude, and paralysis.', color: 'yellow'},
-      {
-        text: 'When the particle meets for deep space, all captains examine ancient, interstellar phenomenans.',
-        color: 'yellow'
-      },
-      {text: 'Fly without love, and we won’t imitate a phenomenan.', color: 'green'},
-      {text: 'Assimilation at the holodeck was the mystery of advice, raised to a final hur\'q.', color: 'green'},
-      {text: 'The planet is more ferengi now than species. ugly and patiently final.', color: 'green'},
-      {text: 'Why does the teleporter walk?', color: 'green'},
-      {text: 'Teleporters go with metamorphosis!', color: 'green', reverse: true},
-    ]
+    messages: [],
+    messageText: '',
   }),
 
   created() {
@@ -159,11 +114,32 @@ export default {
   },
 
   methods: {
-    getChats: function () {
+    getChats() {
       (new api()).getChats().then((response) => {
         this.chats = response.data.chats;
+        if (this.chats.length > 0 && !this.selectedItem) {
+          this.selectedItem = this.chats[0].id;
+          this.getMessages();
+        }
       });
     },
+
+    getMessages() {
+      if (this.selectedItem) {
+        (new api()).getMessages(this.selectedItem).then((response) => {
+          this.messages = response.data.messages;
+        });
+      } else {
+        this.messages = [];
+      }
+    },
+
+    sendMessage() {
+      (new api()).sendMessage(this.selectedItem, this.messageText).then((response) => {
+        this.messages = response.data.messages;
+      });
+    },
+
     getChatTitle(chat) {
       if (chat.title) {
         return chat.title;
@@ -172,7 +148,7 @@ export default {
           return user.username;
         }).join(', ');
       }
-    }
+    },
   }
 }
 </script>
