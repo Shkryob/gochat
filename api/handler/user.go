@@ -81,3 +81,19 @@ func (handler *Handler) GetUsers(context echo.Context) error {
 
 	return utils.ResponseByContentType(context, http.StatusOK, newUserListResponse(users, count))
 }
+
+func (handler *Handler) GetUser(context echo.Context) error {
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	id := uint(id64)
+	user, err := handler.userStore.GetByID(id)
+
+	if err != nil {
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
+	}
+
+	if user == nil {
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
+	}
+
+	return utils.ResponseByContentType(context, http.StatusOK, newSimplifiedUserResponse(user))
+}

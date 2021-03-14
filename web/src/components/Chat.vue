@@ -25,7 +25,12 @@
       <v-col cols="8" class="message-list">
         <v-row v-for="message in messages" :key="message.id" class="pa-1">
           <v-spacer v-if="sharedState.user.username === message.user.username"></v-spacer>
-          <v-chip :color="getMessageColor(message)">{{ message.user.username }}: {{ message.body }}</v-chip>
+          <v-chip :color="getMessageColor(message)">
+            <router-link :to="{name: 'user', params: {id: message.user.id}}">
+              {{ message.user.username }}
+            </router-link>:
+            {{ message.body }}
+          </v-chip>
         </v-row>
       </v-col>
     </v-row>
@@ -168,6 +173,12 @@ export default {
         return 'blue';
       }
     },
-  }
+  },
+
+  watch: {
+    selectedItem() {
+      this.getMessages();
+    },
+  },
 }
 </script>

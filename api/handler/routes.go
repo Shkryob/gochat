@@ -15,6 +15,7 @@ func (handler *Handler) Register(v1 *echo.Group) {
 	user := v1.Group("/users", jwtMiddleware)
 	user.GET("", handler.GetUsers)
 	user.GET("/me", handler.CurrentUser)
+	user.GET("/:user_id", handler.GetUser)
 
 	chats := v1.Group("/chats")
 

@@ -71,10 +71,7 @@ export default {
     },
 
     startChat: function (user) {
-      (new api()).createChat([user.id]).then((response) => {
-        this.users = response.data.users;
-        console.log('this.users', this.users);
-      });
+      (new api()).createChat([user.id]).then(() => {});
     },
   },
 };

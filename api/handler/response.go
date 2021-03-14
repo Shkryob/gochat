@@ -76,6 +76,7 @@ type messageResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	User      struct {
+		ID uint `json:"id"`
 		Username string `json:"username"`
 	} `json:"user"`
 	Chat      struct {
@@ -97,6 +98,7 @@ func newMessageResponse(c echo.Context, m *model.Message) *SingleMessageResponse
 	message.Body = m.Body
 	message.CreatedAt = m.CreatedAt
 	message.UpdatedAt = m.UpdatedAt
+	message.User.ID = m.User.ID
 	message.User.Username = m.User.Username
 	message.Chat.ID = m.ChatID
 	return &SingleMessageResponse{message}
@@ -111,6 +113,7 @@ func newMessageListResponse(c echo.Context, messages []model.Message) *messageLi
 		mr.Body = i.Body
 		mr.CreatedAt = i.CreatedAt
 		mr.UpdatedAt = i.UpdatedAt
+		mr.User.ID = i.User.ID
 		mr.User.Username = i.User.Username
 
 		r.Messages = append(r.Messages, mr)
@@ -136,6 +139,13 @@ func newUserResponse(u *model.User) *userResponse {
 	r.User.Username = u.Username
 	r.User.Email = u.Email
 	r.User.Token = utils.GenerateJWT(u.ID)
+	return r
+}
+
+func newSimplifiedUserResponse(u *model.User) *simplifiedUserResponse {
+	r := new(simplifiedUserResponse)
+	r.ID = u.ID
+	r.Username = u.Username
 	return r
 }
 

@@ -14,7 +14,6 @@ Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
-console.log('VueNativeSock');
 Vue.use(VueNativeSock, 'ws://localhost/api/sockets', {
   store,
   reconnection: true,
