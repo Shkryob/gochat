@@ -46,6 +46,11 @@ const api = function () {
             });
     };
 
+    this.removeChat = (chatID) => {
+        return axios
+            .delete(basePath + 'chats/' + chatID);
+    };
+
     this.getMessages = (chatID) => {
         return axios
             .get(basePath + 'chats/' + chatID + '/messages');

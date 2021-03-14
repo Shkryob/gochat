@@ -5,28 +5,39 @@
         <v-text-field
             label="Search"
             prepend-icon="mdi-magnify"
+            v-model="searchText"
         ></v-text-field>
 
         <div class="chat-list">
         <v-list>
-          <v-list-item-group v-model="selectedItem" color="primary">
-            <v-list-item v-for="chat in chats" :key="chat.id" :value="chat.id">
+          <v-list-item-group color="primary">
+            <v-list-item v-for="chat in filteredChats"
+                         :key="chat.id"
+                         :value="chat.id"
+                         :class="{'v-list-item--active': chat.id === selectedItem}"
+                         @click="setChat(chat)">
               <v-list-item-icon>
                 <v-icon v-text="chat.icon"></v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="getChatTitle(chat)"></v-list-item-title>
               </v-list-item-content>
+              <v-list-item-action>
+                <v-icon color="darken-3" @click="removeChat(chat)">
+                  mdi-delete
+                </v-icon>
+              </v-list-item-action>
             </v-list-item>
           </v-list-item-group>
         </v-list>
         </div>
       </v-col>
-      <v-col cols="8" class="message-list">
+      <v-col cols="8" class="message-list" ref="messages">
         <v-row v-for="message in messages" :key="message.id" class="pa-1">
           <v-spacer v-if="sharedState.user.username === message.user.username"></v-spacer>
           <v-chip :color="getMessageColor(message)">
-            <router-link :to="{name: 'user', params: {id: message.user.id}}">
+            {{ message.createdAt | formatDate }}
+            <router-link :to="{name: 'user', params: {id: message.user.id}}" class="ml-1">
               {{ message.user.username }}
             </router-link>:
             {{ message.body }}
@@ -115,7 +126,21 @@ export default {
     messages: [],
     messageText: '',
     sharedState: store.state,
+    searchText: '',
   }),
+
+  computed: {
+    filteredChats() {
+      if (!this.searchText) {
+        return this.chats;
+      }
+
+      return this.chats.filter((chat) => {
+        const title = this.getChatTitle(chat).toLowerCase();
+        return title.includes(this.searchText.toLocaleLowerCase());
+      });
+    },
+  },
 
   created() {
     this.getChats();
@@ -123,6 +148,14 @@ export default {
     store.eventBus.$on('message-received', (message) => {
       this.addMessage(message);
     });
+
+    if (this.$route.params.id) {
+      this.selectedItem = parseInt(this.$route.params.id);
+    }
+  },
+
+  mounted() {
+    this.scrollToBottom();
   },
 
   methods: {
@@ -140,6 +173,7 @@ export default {
       if (this.selectedItem) {
         (new api()).getMessages(this.selectedItem).then((response) => {
           this.messages = response.data.messages;
+          this.scrollToBottom();
         });
       } else {
         this.messages = [];
@@ -173,10 +207,37 @@ export default {
         return 'blue';
       }
     },
+
+    scrollToBottom() {
+      setTimeout(() => { //wait for next tick
+        let container = this.$refs.messages;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    },
+
+    removeChat(chat) {
+      (new api()).removeChat(chat.id).then(() => {
+        this.chats = this.chats.filter((item) => {
+          return item.id !== chat.id;
+        });
+      });
+    },
+
+    setChat(chat) {
+      this.selectedItem = chat.id;
+    },
   },
 
   watch: {
     selectedItem() {
+      if (this.$route.params.id !== this.selectedItem) {
+        this.$router.push({
+          name: 'chat',
+          params: {'id': this.selectedItem},
+        });
+      }
       this.getMessages();
     },
   },
