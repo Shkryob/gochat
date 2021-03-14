@@ -69,12 +69,10 @@ const store = {
 
     addMessage(message) {
         const messageData = JSON.parse(message.data);
-        console.log('message-received', messageData.message);
         this.eventBus.$emit('message-received', messageData.message);
     },
 
     onSocketEvent(target, event) {
-        console.log('event', event);
         if (target === 'SOCKET_ONOPEN') {
             this.authorizeSocket();
         } else if (target === 'SOCKET_ONMESSAGE') {

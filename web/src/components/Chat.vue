@@ -24,7 +24,8 @@
       </v-col>
       <v-col cols="8" class="message-list">
         <v-row v-for="message in messages" :key="message.id" class="pa-1">
-          <v-chip :color="message.color">{{ message.user.username }}: {{ message.body }}</v-chip>
+          <v-spacer v-if="sharedState.user.username === message.user.username"></v-spacer>
+          <v-chip :color="getMessageColor(message)">{{ message.user.username }}: {{ message.body }}</v-chip>
         </v-row>
       </v-col>
     </v-row>
@@ -35,11 +36,11 @@
     >
       <v-row>
         <v-col cols="4" class="text-center">
-          <router-link :to="{name: 'users'}">
-            <v-icon dark>
+          <v-btn color="indigo" fab dark small :to="{name: 'users'}">
+            <v-icon>
               mdi-plus
             </v-icon>
-          </router-link>
+          </v-btn>
         </v-col>
         <v-col cols="8">
           <v-row>
@@ -108,6 +109,7 @@ export default {
     chats: [],
     messages: [],
     messageText: '',
+    sharedState: store.state,
   }),
 
   created() {
@@ -140,9 +142,8 @@ export default {
     },
 
     sendMessage() {
-      console.log('this.selectedItem', this.selectedItem);
       (new api()).sendMessage(this.selectedItem, this.messageText).then(() => {
-
+        this.messageText = '';
       });
     },
 
@@ -150,7 +151,9 @@ export default {
       if (chat.title) {
         return chat.title;
       } else {
-        return chat.participants.map((user) => {
+        return chat.participants.filter((user) => {
+          return user.username !== this.sharedState.user.username;
+        }).map((user) => {
           return user.username;
         }).join(', ');
       }
@@ -158,6 +161,12 @@ export default {
 
     addMessage(message) {
       this.messages.push(message);
+    },
+
+    getMessageColor(message) {
+      if (message.user.username === this.sharedState.user.username) {
+        return 'blue';
+      }
     },
   }
 }

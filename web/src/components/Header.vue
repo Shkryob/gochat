@@ -5,8 +5,8 @@
       dark
   >
     <div class="d-flex align-center">
-      <router-link :to="{name: 'chats'}">
-        <v-img
+      <router-link :to="{name: 'chats'}" class="logo">
+        <img
             alt="Vuetify Logo"
             class="shrink mr-2"
             contain
@@ -20,16 +20,24 @@
 
     <v-spacer></v-spacer>
 
-    <router-link :to="{name: 'profile'}" v-if="sharedState.user">
+    <v-btn :to="{name: 'profile'}" v-if="sharedState.user" light>
       <span class="mr-2">{{sharedState.user.username}}</span>
       <v-icon>mdi-account-circle</v-icon>
-    </router-link>
-    <v-btn @click="logout()" v-if="sharedState.user" light>
+    </v-btn>
+    <v-btn @click="logout()" v-if="sharedState.user" light class="ml-2">
       <v-icon left>mdi-logout</v-icon>
       Logout
     </v-btn>
   </v-app-bar>
 </template>
+
+<style>
+.v-application a.logo {
+  font-size: 38px;
+  color: white;
+  text-decoration: none;
+}
+</style>
 
 <script>
 import store from "../store";
