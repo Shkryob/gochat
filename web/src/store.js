@@ -9,6 +9,7 @@ const store = {
     },
     vue: null,
     eventBus: null,
+    showLeftMenu: false,
 
     init (Vue) {
         this.vue = Vue;
@@ -78,7 +79,18 @@ const store = {
         } else if (target === 'SOCKET_ONMESSAGE') {
             this.addMessage(event)
         }
-    }
+    },
+
+    hideLeftMenu() {
+        this.state.showLeftMenu = false;
+        this.eventBus.$emit('toggle-left-menu', this.state.showLeftMenu);
+    },
+
+    toggleLeftMenu() {
+        this.state.showLeftMenu = !this.state.showLeftMenu;
+        console.log('this.state.showLeftMenu', this.state.showLeftMenu);
+        this.eventBus.$emit('toggle-left-menu', this.state.showLeftMenu);
+    },
 }
 
 export default store;

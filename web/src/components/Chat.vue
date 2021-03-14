@@ -1,11 +1,12 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col cols="4" class="left-sidebar">
+      <v-col sm="12" md="4" lg="3" class="left-sidebar" :class="{'hidden-sm-and-down': !showLeftMenu}">
         <v-text-field
             label="Search"
             prepend-icon="mdi-magnify"
             v-model="searchText"
+            class="pl-3 pr-3"
         ></v-text-field>
 
         <div class="chat-list">
@@ -16,9 +17,6 @@
                          :value="chat.id"
                          :class="{'v-list-item--active': chat.id === selectedItem}"
                          @click="setChat(chat)">
-              <v-list-item-icon>
-                <v-icon v-text="chat.icon"></v-icon>
-              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="getChatTitle(chat)"></v-list-item-title>
               </v-list-item-content>
@@ -32,7 +30,7 @@
         </v-list>
         </div>
       </v-col>
-      <v-col cols="8" class="message-list" ref="messages">
+      <v-col sm="12" md="8" lg="9" class="message-list" ref="messages" :class="{'hidden-sm-and-down': showLeftMenu}">
         <v-row v-for="message in messages" :key="message.id" class="pa-1">
           <v-spacer v-if="sharedState.user.username === message.user.username"></v-spacer>
           <v-chip :color="getMessageColor(message)">
@@ -51,24 +49,30 @@
         bottom
     >
       <v-row>
-        <v-col cols="4" class="text-center">
+        <v-col sm="12" md="4" lg="3" class="text-center" :class="{'hidden-sm-and-down': !showLeftMenu}">
           <v-btn color="indigo" fab dark small :to="{name: 'users'}">
             <v-icon>
               mdi-plus
             </v-icon>
           </v-btn>
         </v-col>
-        <v-col cols="8">
+        <v-col sm="12" md="8" lg="9" :class="{'hidden-sm-and-down': showLeftMenu}">
           <v-row>
             <v-col cols="10">
               <v-text-field label="Message" v-model="messageText"/>
             </v-col>
-            <v-col cols="2" class="pt-5">
-              <v-btn block color="indigo" dark @click="sendMessage">
+            <v-col cols="2" class="pt-5 text-right">
+              <v-btn block color="indigo" dark @click="sendMessage" class="hidden-sm-and-down">
                 <v-icon left>
                   mdi-send
                 </v-icon>
-                Send
+                <span>Send</span>
+              </v-btn>
+
+              <v-btn color="indigo" fab dark small @click="sendMessage" class="hidden-md-and-up text-center">
+                <v-icon>
+                  mdi-send
+                </v-icon>
               </v-btn>
             </v-col>
           </v-row>
@@ -127,6 +131,7 @@ export default {
     messageText: '',
     sharedState: store.state,
     searchText: '',
+    showLeftMenu: false,
   }),
 
   computed: {
@@ -147,6 +152,10 @@ export default {
 
     store.eventBus.$on('message-received', (message) => {
       this.addMessage(message);
+    });
+
+    store.eventBus.$on('toggle-left-menu', (state) => {
+      this.showLeftMenu = state;
     });
 
     if (this.$route.params.id) {
@@ -174,6 +183,7 @@ export default {
         (new api()).getMessages(this.selectedItem).then((response) => {
           this.messages = response.data.messages;
           this.scrollToBottom();
+          store.hideLeftMenu();
         });
       } else {
         this.messages = [];
