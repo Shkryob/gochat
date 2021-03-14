@@ -5,7 +5,7 @@
       dark
   >
     <div class="d-flex align-center">
-      <router-link :to="{name: 'chat'}">
+      <router-link :to="{name: 'chats'}">
         <v-img
             alt="Vuetify Logo"
             class="shrink mr-2"

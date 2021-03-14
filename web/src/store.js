@@ -7,8 +7,13 @@ const store = {
         chats: [],
         user: null,
     },
+    vue: null,
+    eventBus: null,
 
-    init () {
+    init (Vue) {
+        this.vue = Vue;
+        this.eventBus = new Vue;
+
         const user = this.localStorage.getItem('user');
         if (typeof user === 'string') {
             try {
@@ -38,6 +43,7 @@ const store = {
         this.state.user = newValue;
         if (typeof this.state.user === 'object') {
             this.localStorage.setItem('user', JSON.stringify(this.state.user));
+            this.authorizeSocket();
         } else {
             this.localStorage.setItem('user', null);
         }
@@ -49,6 +55,31 @@ const store = {
             console.log('Get user ', this.state.user);
         }
         return this.state.user;
+    },
+
+    authorizeSocket() {
+        if (!this.state.user || !this.vue.prototype.$socket) {
+            return;
+        }
+        this.vue.prototype.$socket.send(JSON.stringify({
+            'action': 'authorize',
+            'jwt': this.state.user.token,
+        }));
+    },
+
+    addMessage(message) {
+        const messageData = JSON.parse(message.data);
+        console.log('message-received', messageData.message);
+        this.eventBus.$emit('message-received', messageData.message);
+    },
+
+    onSocketEvent(target, event) {
+        console.log('event', event);
+        if (target === 'SOCKET_ONOPEN') {
+            this.authorizeSocket();
+        } else if (target === 'SOCKET_ONMESSAGE') {
+            this.addMessage(event)
+        }
     }
 }
 

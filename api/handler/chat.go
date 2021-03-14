@@ -68,6 +68,7 @@ func (handler *Handler) CreateChat(context echo.Context) error {
 
 	err := handler.chatStore.CreateChat(&chat)
 
+	req.Chat.Participants = append(req.Chat.Participants, chat.AdminID)
 	handler.chatStore.ReplaceParticipants(&chat, req.Chat.Participants)
 
 	if err != nil {
@@ -163,7 +164,10 @@ func (handler *Handler) AddMessage(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 
-	return utils.ResponseByContentType(context, http.StatusCreated, newMessageResponse(context, &cm))
+	response := newMessageResponse(context, &cm)
+	BroadcastMessage(chat, response)
+
+	return utils.ResponseByContentType(context, http.StatusCreated, response)
 }
 
 func (handler *Handler) GetMessages(context echo.Context) error {

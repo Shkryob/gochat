@@ -12,7 +12,7 @@ type chatResponse struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
 	Admin  struct {
-		ID uint "json:id"
+		ID uint `json:"id"`
 		Username string `json:"username"`
 	} `json:"admin"`
 	Participants      []*simplifiedUserResponse `json:"participants"`
@@ -78,9 +78,12 @@ type messageResponse struct {
 	User      struct {
 		Username string `json:"username"`
 	} `json:"user"`
+	Chat      struct {
+		ID uint `json:"id"`
+	} `json:"chat"`
 }
 
-type singleMessageResponse struct {
+type SingleMessageResponse struct {
 	Message *messageResponse `json:"message"`
 }
 
@@ -88,14 +91,15 @@ type messageListResponse struct {
 	Messages []messageResponse `json:"messages"`
 }
 
-func newMessageResponse(c echo.Context, m *model.Message) *singleMessageResponse {
+func newMessageResponse(c echo.Context, m *model.Message) *SingleMessageResponse {
 	message := new(messageResponse)
 	message.ID = m.ID
 	message.Body = m.Body
 	message.CreatedAt = m.CreatedAt
 	message.UpdatedAt = m.UpdatedAt
 	message.User.Username = m.User.Username
-	return &singleMessageResponse{message}
+	message.Chat.ID = m.ChatID
+	return &SingleMessageResponse{message}
 }
 
 func newMessageListResponse(c echo.Context, messages []model.Message) *messageListResponse {

@@ -15,7 +15,7 @@ const routes = [
     { path: '/users/:id', component: User, name: 'user' },
     { path: '/users', component: Users, name: 'users' },
     { path: '/:id', component: Chat, name: 'chat' },
-    { path: '/', component: Chat, name: 'chat' },
+    { path: '/', component: Chat, name: 'chats' },
 ];
 
 const router = new VueRouter({
@@ -30,7 +30,7 @@ router.beforeEach((to, from, next) => {
     }
 
     if ((to.name === 'login' || to.name === 'sign-up') && store.state.user) {
-        next({ name: 'chat' });
+        next({ name: 'chats' });
         return;
     }
 

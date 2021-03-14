@@ -10,7 +10,7 @@
         <div class="chat-list">
         <v-list>
           <v-list-item-group v-model="selectedItem" color="primary">
-            <v-list-item v-for="chat in chats" :key="chat.id">
+            <v-list-item v-for="chat in chats" :key="chat.id" :value="chat.id">
               <v-list-item-icon>
                 <v-icon v-text="chat.icon"></v-icon>
               </v-list-item-icon>
@@ -100,6 +100,7 @@
 
 <script>
 import api from "../api";
+import store from "../store";
 
 export default {
   data: () => ({
@@ -111,6 +112,10 @@ export default {
 
   created() {
     this.getChats();
+
+    store.eventBus.$on('message-received', (message) => {
+      this.addMessage(message);
+    });
   },
 
   methods: {
@@ -135,8 +140,9 @@ export default {
     },
 
     sendMessage() {
-      (new api()).sendMessage(this.selectedItem, this.messageText).then((response) => {
-        this.messages = response.data.messages;
+      console.log('this.selectedItem', this.selectedItem);
+      (new api()).sendMessage(this.selectedItem, this.messageText).then(() => {
+
       });
     },
 
@@ -148,6 +154,10 @@ export default {
           return user.username;
         }).join(', ');
       }
+    },
+
+    addMessage(message) {
+      this.messages.push(message);
     },
   }
 }
