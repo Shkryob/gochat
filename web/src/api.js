@@ -32,6 +32,10 @@ const api = function () {
         return axios.get(basePath + 'users/' + id);
     }
 
+    this.getAvatar = (id) => {
+        return axios.get(basePath + 'users/' + id + '/avatar', { responseType: 'arraybuffer' });
+    }
+
     this.getChats = () => {
         return axios
             .get(basePath + 'chats');

@@ -16,6 +16,8 @@ func (handler *Handler) Register(v1 *echo.Group) {
 	user.GET("", handler.GetUsers)
 	user.GET("/me", handler.CurrentUser)
 	user.GET("/:user_id", handler.GetUser)
+	user.GET("/:user_id/avatar", handler.GetAvatar)
+	user.POST("/avatar", handler.UploadAvatar)
 
 	chats := v1.Group("/chats")
 

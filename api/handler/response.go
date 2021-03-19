@@ -123,6 +123,7 @@ func newMessageListResponse(c echo.Context, messages []model.Message) *messageLi
 
 type userResponse struct {
 	User struct {
+		ID        uint      `json:"id"`
 		Username string `json:"username"`
 		Email    string `json:"email"`
 		Token    string `json:"token"`
@@ -136,6 +137,7 @@ type simplifiedUserResponse struct {
 
 func newUserResponse(u *model.User) *userResponse {
 	r := new(userResponse)
+	r.User.ID = u.ID
 	r.User.Username = u.Username
 	r.User.Email = u.Email
 	r.User.Token = utils.GenerateJWT(u.ID)

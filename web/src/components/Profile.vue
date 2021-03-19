@@ -3,6 +3,7 @@
     <v-row align="center" justify="center">
       <v-col cols="4" align-self="center">
         <h1>Profile</h1>
+        <Avatar :id="id" />
         <v-form @submit="updateProfile($event)">
           <v-text-field label="Username" v-model="username"/>
           <v-text-field label="Email" v-model="email" type="email" disabled/>
@@ -27,6 +28,19 @@
             </v-col>
           </v-row>
         </v-form>
+
+        <v-form @submit="submitFile($event)">
+          <v-file-input v-model="file"
+                        prepend-icon="mdi-camera"
+                        accept="image/png, image/jpeg, image/bmp"/>
+          <v-row>
+            <v-col class="text-right">
+              <v-btn color="indigo" dark type="submit">
+                Upload
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-col>
     </v-row>
   </v-container>
@@ -35,17 +49,26 @@
 <script>
 import api from "../api";
 import store from '../store';
+import axios from "axios";
+import Avatar from "./Avatar";
 
 export default {
   name: 'Profile',
 
+  components: {
+    Avatar,
+  },
+
   data: function () {
     return {
+      id: '',
       username: '',
       email: '',
 
       password: '',
       password_confirm: '',
+
+      file: null,
     };
   },
 
@@ -54,6 +77,7 @@ export default {
 
     this.username = user.username + '';
     this.email = user.email + '';
+    this.id = user.id + '';
   },
 
   methods: {
@@ -68,6 +92,25 @@ export default {
 
     updatePassword: function ($event) {
       $event.preventDefault();
+    },
+
+    submitFile($event) {
+      $event.preventDefault();
+
+      const formData = new FormData();
+      formData.append('file', this.file);
+      axios.post('/api/users/avatar',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      ).then(function () {
+        console.log('SUCCESS!!');
+      }).catch(function () {
+        console.log('FAILURE!!');
+      });
     },
   },
 };

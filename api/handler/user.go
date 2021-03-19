@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -96,4 +99,48 @@ func (handler *Handler) GetUser(context echo.Context) error {
 	}
 
 	return utils.ResponseByContentType(context, http.StatusOK, newSimplifiedUserResponse(user))
+}
+
+func (handler *Handler) UploadAvatar(context echo.Context) error {
+	//-----------
+	// Read file
+	//-----------
+
+	// Source
+	file, err := context.FormFile("file")
+	if err != nil {
+		return err
+	}
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	userID := userIDFromToken(context)
+	// Destination
+	dst, err := os.Create("uploads/avatars/" + fmt.Sprint(userID))
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		return err
+	}
+
+	return utils.ResponseByContentType(context,
+		http.StatusOK,
+		fmt.Sprintf("File %s uploaded successfully", file.Filename))
+}
+
+func (handler *Handler) GetAvatar(context echo.Context) error {
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	id := uint(id64)
+
+	return context.Inline("uploads/avatars/" + fmt.Sprint(id), "avatar_" + fmt.Sprint(id))
 }
