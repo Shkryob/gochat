@@ -43,7 +43,7 @@ func (us *UserStore) GetByEmail(e string) (*model.User, error) {
 
 func (us *UserStore) GetByUsername(username string) (*model.User, error) {
 	var m model.User
-	if err := us.db.Where(&model.User{Username: username}).Preload("Followers").First(&m).Error; err != nil {
+	if err := us.db.Where(&model.User{Username: username}).First(&m).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil
 		}
@@ -69,4 +69,46 @@ func (us *UserStore) List(offset, limit int, search string) ([]model.User, int, 
 		Order("created_at desc").Find(&users)
 
 	return users, count, nil
+}
+
+func (us *UserStore) GetBlacklist(fromID uint, toID uint) (*model.Blacklist, error) {
+	var m model.Blacklist
+	if err := us.db.Where(&model.Blacklist{FromID: fromID, ToID: toID}).
+		First(&m).Error; err != nil {
+
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (us *UserStore) GetFriend(fromID uint, toID uint) (*model.Friend, error) {
+	var m model.Friend
+	if err := us.db.Where(&model.Friend{FromID: fromID, ToID: toID}).
+		First(&m).Error; err != nil {
+
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (us *UserStore) CreateBlackList(bl *model.Blacklist) (err error) {
+	return us.db.Create(bl).Error
+}
+
+func (us *UserStore) RemoveBlackList(bl *model.Blacklist) (err error) {
+	return us.db.Delete(bl).Error
+}
+
+func (us *UserStore) CreateFriend(fr *model.Friend) (err error) {
+	return us.db.Create(fr).Error
+}
+
+func (us *UserStore) RemoveFriend(fr *model.Friend) (err error) {
+	return us.db.Delete(fr).Error
 }

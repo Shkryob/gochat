@@ -98,14 +98,23 @@ func (handler *Handler) GetUser(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
 	}
 
-	return utils.ResponseByContentType(context, http.StatusOK, newSimplifiedUserResponse(user))
+	userID := userIDFromToken(context)
+	bl, err := handler.userStore.GetBlacklist(userID, id)
+	blacklisted := false
+	if bl != nil {
+		blacklisted = true
+	}
+
+	fr, err := handler.userStore.GetFriend(userID, id)
+	friends := false
+	if fr != nil {
+		friends = true
+	}
+
+	return utils.ResponseByContentType(context, http.StatusOK, newSimplifiedUserResponse(user, blacklisted, friends))
 }
 
 func (handler *Handler) UploadAvatar(context echo.Context) error {
-	//-----------
-	// Read file
-	//-----------
-
 	// Source
 	file, err := context.FormFile("file")
 	if err != nil {
@@ -143,4 +152,78 @@ func (handler *Handler) GetAvatar(context echo.Context) error {
 	id := uint(id64)
 
 	return context.Inline("uploads/avatars/" + fmt.Sprint(id), "avatar_" + fmt.Sprint(id))
+}
+
+func (handler *Handler) AddToBlackList(context echo.Context) error {
+	userID := userIDFromToken(context)
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	exists, _ := handler.userStore.GetBlacklist(userID, uint(id64))
+	if exists != nil {
+		return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
+	}
+
+	var bl model.Blacklist
+	bl.FromID = userID
+	bl.ToID = uint(id64)
+
+	if err := handler.userStore.CreateBlackList(&bl); err != nil {
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+	}
+	return utils.ResponseByContentType(context, http.StatusCreated, map[string]interface{}{"result": "ok"})
+}
+
+func (handler *Handler) RemoveFromBlackList(context echo.Context) error {
+	userID := userIDFromToken(context)
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	bl, err := handler.userStore.GetBlacklist(userID, uint(id64))
+	if err != nil {
+		return err
+	}
+	if err := handler.userStore.RemoveBlackList(bl); err != nil {
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+	}
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
+}
+
+func (handler *Handler) AddFriend(context echo.Context) error {
+	userID := userIDFromToken(context)
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	exists, _ := handler.userStore.GetFriend(userID, uint(id64))
+	if exists != nil {
+		return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
+	}
+
+	var fr model.Friend
+	fr.FromID = userID
+	fr.ToID = uint(id64)
+
+	if err := handler.userStore.CreateFriend(&fr); err != nil {
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+	}
+	return utils.ResponseByContentType(context, http.StatusCreated, map[string]interface{}{"result": "ok"})
+}
+
+func (handler *Handler) RemoveFriend(context echo.Context) error {
+	userID := userIDFromToken(context)
+	id64, err := strconv.ParseUint(context.Param("user_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	fr, err := handler.userStore.GetFriend(userID, uint(id64))
+	if err != nil {
+		return err
+	}
+	if err := handler.userStore.RemoveFriend(fr); err != nil {
+		return utils.ResponseByContentType(context, http.StatusUnprocessableEntity, utils.NewError(err))
+	}
+	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }

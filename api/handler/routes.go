@@ -9,7 +9,7 @@ import (
 func (handler *Handler) Register(v1 *echo.Group) {
 	jwtMiddleware := middleware.JWT(utils.JWTSecret)
 	guestUsers := v1.Group("/users")
-	guestUsers.POST("", handler.SignUp)
+	guestUsers.POST("/signup", handler.SignUp)
 	guestUsers.POST("/login", handler.Login)
 
 	user := v1.Group("/users", jwtMiddleware)
@@ -17,6 +17,10 @@ func (handler *Handler) Register(v1 *echo.Group) {
 	user.GET("/me", handler.CurrentUser)
 	user.GET("/:user_id", handler.GetUser)
 	user.GET("/:user_id/avatar", handler.GetAvatar)
+	user.POST("/:user_id/blacklist", handler.AddToBlackList)
+	user.DELETE("/:user_id/blacklist", handler.RemoveFromBlackList)
+	user.POST("/:user_id/friend", handler.AddFriend)
+	user.DELETE("/:user_id/friend", handler.RemoveFriend)
 	user.POST("/avatar", handler.UploadAvatar)
 
 	chats := v1.Group("/chats")

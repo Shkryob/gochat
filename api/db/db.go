@@ -44,5 +44,7 @@ func AutoMigrate(db *gorm.DB) {
 		&model.User{},
 		&model.Chat{},
 		&model.Message{},
+		&model.Friend{},
+		&model.Blacklist{},
 	)
 }

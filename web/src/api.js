@@ -5,7 +5,7 @@ const api = function () {
 
     this.signup = (username, email, password) => {
         return axios
-            .post(basePath + 'users', {
+            .post(basePath + 'users/signup', {
                 user: {
                     username,
                     email,
@@ -34,6 +34,22 @@ const api = function () {
 
     this.getAvatar = (id) => {
         return axios.get(basePath + 'users/' + id + '/avatar', { responseType: 'arraybuffer' });
+    }
+
+    this.addBlacklist = (id) => {
+        return axios.post(basePath + 'users/' + id + '/blacklist');
+    }
+
+    this.removeBlacklist = (id) => {
+        return axios.delete(basePath + 'users/' + id + '/blacklist');
+    }
+
+    this.addFriend = (id) => {
+        return axios.post(basePath + 'users/' + id + '/friend');
+    }
+
+    this.removeFriend = (id) => {
+        return axios.delete(basePath + 'users/' + id + '/friend');
     }
 
     this.getChats = () => {

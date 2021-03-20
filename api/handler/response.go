@@ -133,6 +133,8 @@ type userResponse struct {
 type simplifiedUserResponse struct {
 	ID   	 uint   `json:"id"`
 	Username string `json:"username"`
+	Blacklisted bool `json:"blacklisted"`
+	Friends bool `json:"friends"`
 }
 
 func newUserResponse(u *model.User) *userResponse {
@@ -144,10 +146,12 @@ func newUserResponse(u *model.User) *userResponse {
 	return r
 }
 
-func newSimplifiedUserResponse(u *model.User) *simplifiedUserResponse {
+func newSimplifiedUserResponse(u *model.User, blacklisted bool, friends bool) *simplifiedUserResponse {
 	r := new(simplifiedUserResponse)
 	r.ID = u.ID
 	r.Username = u.Username
+	r.Blacklisted = blacklisted
+	r.Friends = friends
 	return r
 }
 

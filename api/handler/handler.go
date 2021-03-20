@@ -33,6 +33,12 @@ type UserStore interface {
 	Create(*model.User) error
 	Update(*model.User) error
 	List(int, int, string) ([]model.User, int, error)
+	GetBlacklist(fromID uint, toID uint) (*model.Blacklist, error)
+	GetFriend(fromID uint, toID uint) (*model.Friend, error)
+    CreateBlackList(bl *model.Blacklist) (err error)
+	RemoveBlackList(bl *model.Blacklist) (err error)
+	CreateFriend(bl *model.Friend) (err error)
+	RemoveFriend(bl *model.Friend) (err error)
 }
 
 func NewHandler(config config.Configuration, us UserStore, cs ChatStore) *Handler {

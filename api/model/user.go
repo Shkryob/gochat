@@ -20,6 +20,8 @@ type User struct {
 }
 
 type Blacklist struct {
+	gorm.Model
+
 	From    User
 	FromID  uint `gorm:"primary_key" sql:"type:int not null"`
 	To   	User
@@ -27,6 +29,8 @@ type Blacklist struct {
 }
 
 type Friend struct {
+	gorm.Model
+
 	From    User
 	FromID  uint `gorm:"primary_key" sql:"type:int not null"`
 	To   	User
