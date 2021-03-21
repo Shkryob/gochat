@@ -24,6 +24,10 @@ const api = function () {
             });
     };
 
+    this.refreshToken = () => {
+        return axios.get(basePath + 'users/me');
+    };
+
     this.getUsers = (search) => {
         return axios.get(basePath + 'users?search=' + search);
     }

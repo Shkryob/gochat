@@ -32,7 +32,7 @@
       </v-col>
       <v-col sm="12" md="8" lg="9" class="message-list" ref="messages" :class="{'hidden-sm-and-down': showLeftMenu}">
         <v-row v-for="message in messages" :key="message.id" class="pa-1">
-          <v-spacer v-if="sharedState.user.username === message.user.username"></v-spacer>
+          <v-spacer v-if="sharedState.user && sharedState.user.username === message.user.username"></v-spacer>
           <v-chip :color="getMessageColor(message)">
             {{ message.createdAt | formatDate }}
             <router-link :to="{name: 'user', params: {id: message.user.id}}" class="ml-1">
@@ -201,7 +201,11 @@ export default {
         return chat.title;
       } else {
         return chat.participants.filter((user) => {
-          return user.username !== this.sharedState.user.username;
+          if (this.sharedState.user) {
+            return user.username !== this.sharedState.user.username;
+          } else {
+            return true;
+          }
         }).map((user) => {
           return user.username;
         }).join(', ');
@@ -213,7 +217,7 @@ export default {
     },
 
     getMessageColor(message) {
-      if (message.user.username === this.sharedState.user.username) {
+      if (this.sharedState.user && message.user.username === this.sharedState.user.username) {
         return 'blue';
       }
     },
