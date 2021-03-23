@@ -16,9 +16,9 @@ import (
 
 var connectionPool = struct {
 	sync.RWMutex
-	connections map[uint][]*websocket.Conn
+	connections map[uint]map[*websocket.Conn]bool
 }{
-	connections: make(map[uint][]*websocket.Conn),
+	connections: make(map[uint]map[*websocket.Conn]bool),
 }
 
 var (
@@ -42,6 +42,7 @@ func (handler *Handler) GetSocket(context echo.Context) error {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			context.Logger().Error(err)
+			removeSocketFromPool(ws)
 			return err
 		}
 		msgData := utils.JsonToMap(msg)
@@ -49,6 +50,16 @@ func (handler *Handler) GetSocket(context echo.Context) error {
 			authorizeSocket(fmt.Sprintf("%v", msgData["jwt"]), ws)
 		}
 	}
+}
+
+func removeSocketFromPool(ws *websocket.Conn) {
+	connectionPool.RWMutex.RLock()
+
+	for _, sockets := range connectionPool.connections {
+		delete(sockets, ws)
+	}
+
+	connectionPool.RWMutex.RUnlock()
 }
 
 func authorizeSocket(jwtToken string, ws *websocket.Conn)  {
@@ -69,20 +80,20 @@ func authorizeSocket(jwtToken string, ws *websocket.Conn)  {
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userID := uint(claims["id"].(float64))
-		val, ok := connectionPool.connections[userID]
-		if ok {
-			connectionPool.connections[userID] = append(val, ws)
-		} else {
-			var val []*websocket.Conn
-			connectionPool.connections[userID] =  append(val, ws)
+		connectionPool.RWMutex.RLock()
+		_, ok := connectionPool.connections[userID]
+		if !ok {
+			connectionPool.connections[userID] = make(map[*websocket.Conn]bool)
 		}
+		connectionPool.connections[userID][ws] = true
+		connectionPool.RWMutex.RUnlock()
 	}
 }
 
 func BroadcastMessage(chat *model.Chat, message *SingleMessageResponse)  {
 	for _, user := range chat.Users {
 		if sockets, ok := connectionPool.connections[user.ID]; ok {
-			for _, socket := range sockets {
+			for socket, _ := range sockets {
 				b, _ := json.MarshalIndent(message, "", "\t")
 				if err := socket.WriteMessage(websocket.TextMessage, b); err != nil {
 					fmt.Println(err)
