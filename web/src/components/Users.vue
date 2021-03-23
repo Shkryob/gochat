@@ -20,6 +20,12 @@
         </v-row>
 
         <v-row>
+          <v-col class="text-center">
+            <Avatar :id="user.id" />
+          </v-col>
+        </v-row>
+
+        <v-row>
           <v-col class="text-right">
             <v-icon @click="startChat(user)">
               mdi-message-outline
@@ -43,9 +49,14 @@
 
 <script>
 import api from "../api";
+import Avatar from "./Avatar";
 
 export default {
   name: 'Users',
+
+  components: {
+    Avatar,
+  },
 
   data: function () {
     return {

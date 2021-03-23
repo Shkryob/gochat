@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <v-avatar>
+  <span>
+    <v-avatar size="128">
       <img
           :src="src"
           alt="John"
       >
     </v-avatar>
-  </div>
+  </span>
 </template>
 
 <script>

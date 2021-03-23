@@ -2,9 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col v-if="user">
-        <h1 class="text-center">{{ user.username }}</h1>
-        <img :src="user.avatar" :alt="user.username">
-
+        <h1 class="text-center">{{ user.username }}<Avatar :id="user.id" /></h1>
         <v-row>
           <v-col class="text-right">
             <v-icon @click="startChat(user)">
@@ -30,9 +28,14 @@
 
 <script>
 import api from "../api";
+import Avatar from "./Avatar";
 
 export default {
   name: 'User',
+
+  components: {
+    Avatar,
+  },
 
   data: function () {
     return {
