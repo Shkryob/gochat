@@ -90,6 +90,19 @@ func authorizeSocket(jwtToken string, ws *websocket.Conn)  {
 	}
 }
 
+func BroadcastChatCreated(chat *model.Chat, message *SingleChatResponse)  {
+	for _, user := range chat.Users {
+		if sockets, ok := connectionPool.connections[user.ID]; ok {
+			for socket, _ := range sockets {
+				b, _ := json.MarshalIndent(message, "", "\t")
+				if err := socket.WriteMessage(websocket.TextMessage, b); err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}
+}
+
 func BroadcastMessage(chat *model.Chat, message *SingleMessageResponse)  {
 	for _, user := range chat.Users {
 		if sockets, ok := connectionPool.connections[user.ID]; ok {

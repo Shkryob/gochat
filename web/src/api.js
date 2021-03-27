@@ -88,6 +88,20 @@ const api = function () {
                 }
             });
     };
+
+    this.updateMessage = (chatID, messageID, body) => {
+        return axios
+            .put(basePath + 'chats/' + chatID + '/messages/' + messageID, {
+                message: {
+                    body
+                }
+            });
+    };
+
+    this.removeMessage = (chatID, messageID) => {
+        return axios
+            .delete(basePath + 'chats/' + chatID + '/messages/' + messageID);
+    };
 }
 
 export default api;

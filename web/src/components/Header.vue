@@ -7,7 +7,8 @@
     <v-btn @click="toggleLeftMenu()"
            light
            class="ml-2 hidden-md-and-up"
-           v-if="['chat', 'chats'].indexOf($route.name) > -1">
+           v-if="['chat', 'chats'].indexOf($route.name) > -1"
+           color="white">
       <v-icon>mdi-menu</v-icon>
     </v-btn>
     <v-spacer class="hidden-md-and-up"></v-spacer>
@@ -25,11 +26,11 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn :to="{name: 'profile'}" v-if="sharedState.user" light>
+    <v-btn :to="{name: 'profile'}" v-if="sharedState.user" light color="white">
       <span class="mr-2 hidden-sm-and-down">{{sharedState.user.username}}</span>
       <v-icon>mdi-account-circle</v-icon>
     </v-btn>
-    <v-btn @click="logout()" v-if="sharedState.user" light class="ml-2">
+    <v-btn @click="logout()" v-if="sharedState.user" light class="ml-2" color="white">
       <span class="mr-2 hidden-sm-and-down">Logout</span>
       <v-icon>mdi-logout</v-icon>
     </v-btn>

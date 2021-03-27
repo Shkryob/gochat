@@ -18,8 +18,9 @@ type chatResponse struct {
 	Participants      []*simplifiedUserResponse `json:"participants"`
 }
 
-type singleChatResponse struct {
+type SingleChatResponse struct {
 	Chat *chatResponse `json:"chat"`
+	Event string `json:"event"`
 }
 
 type chatListResponse struct {
@@ -32,7 +33,7 @@ type userListResponse struct {
 	UsersCount int             `json:"usersCount"`
 }
 
-func newChatResponse(c echo.Context, ch *model.Chat) *singleChatResponse {
+func newChatResponse(c echo.Context, ch *model.Chat, event string) *SingleChatResponse {
 	chat := new(chatResponse)
 	chat.ID = ch.ID
 	chat.Title = ch.Title
@@ -45,7 +46,7 @@ func newChatResponse(c echo.Context, ch *model.Chat) *singleChatResponse {
 		participant.Username = c.Username
 		chat.Participants = append(chat.Participants, participant)
 	}
-	return &singleChatResponse{chat}
+	return &SingleChatResponse{chat, event}
 }
 
 func newChatListResponse(chats []model.Chat, count int) *chatListResponse {
@@ -86,13 +87,14 @@ type messageResponse struct {
 
 type SingleMessageResponse struct {
 	Message *messageResponse `json:"message"`
+	Event string `json:"event"`
 }
 
 type messageListResponse struct {
 	Messages []messageResponse `json:"messages"`
 }
 
-func newMessageResponse(c echo.Context, m *model.Message) *SingleMessageResponse {
+func newMessageResponse(c echo.Context, m *model.Message, event string) *SingleMessageResponse {
 	message := new(messageResponse)
 	message.ID = m.ID
 	message.Body = m.Body
@@ -101,7 +103,7 @@ func newMessageResponse(c echo.Context, m *model.Message) *SingleMessageResponse
 	message.User.ID = m.User.ID
 	message.User.Username = m.User.Username
 	message.Chat.ID = m.ChatID
-	return &SingleMessageResponse{message}
+	return &SingleMessageResponse{message, event}
 }
 
 func newMessageListResponse(c echo.Context, messages []model.Message) *messageListResponse {

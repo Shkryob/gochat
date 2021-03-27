@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/shkryob/gochat/model"
 )
@@ -77,22 +76,14 @@ func (chatStore *ChatStore) UpdateChat(a *model.Chat) error {
 	return tx.Commit().Error
 }
 
-func (chatStore *ChatStore) ReplaceParticipants(a *model.Chat, participants []uint) error {
+func (chatStore *ChatStore) ReplaceParticipants(a *model.Chat, participants *[]model.User) error {
 	tx := chatStore.db.Begin()
 	if err := tx.Model(a).Update(a).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	var users []model.User
 
-	for _, id := range participants {
-		userModel := model.User{}
-		userModel.Model.ID = id
-		fmt.Print(id)
-		users = append(users, userModel)
-	}
-
-	tx.Model(a).Association("Users").Replace(users)
+	tx.Model(a).Association("Users").Replace(participants)
 
 	if err := tx.Where(a.ID).Preload("Admin").Preload("Users").Find(a).Error; err != nil {
 		tx.Rollback()

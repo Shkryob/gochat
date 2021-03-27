@@ -17,7 +17,7 @@ type ChatStore interface {
 	CreateChat(*model.Chat) error
 	UpdateChat(*model.Chat) error
 	DeleteChat(*model.Chat) error
-	ReplaceParticipants(*model.Chat,[]uint) error
+	ReplaceParticipants(*model.Chat,*[]model.User) error
 
 	AddMessage(*model.Chat, *model.Message) error
 	GetMessagesByChatId(uint) ([]model.Message, error)
@@ -28,6 +28,7 @@ type ChatStore interface {
 
 type UserStore interface {
 	GetByID(uint) (*model.User, error)
+	GetByIDs([]uint) []model.User
 	GetByEmail(string) (*model.User, error)
 	GetByUsername(string) (*model.User, error)
 	Create(*model.User) error

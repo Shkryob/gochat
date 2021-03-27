@@ -26,6 +26,14 @@ func (us *UserStore) GetByID(id uint) (*model.User, error) {
 	return &m, nil
 }
 
+func (us *UserStore) GetByIDs(usersIDs []uint) []model.User {
+	var users []model.User
+
+	us.db.Find(&users, usersIDs)
+
+	return users
+}
+
 func (us *UserStore) Create(u *model.User) (err error) {
 	return us.db.Create(u).Error
 }

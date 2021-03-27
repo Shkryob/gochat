@@ -99,16 +99,16 @@ const store = {
         }));
     },
 
-    addMessage(message) {
+    emitSocketEvent(message) {
         const messageData = JSON.parse(message.data);
-        this.eventBus.$emit('message-received', messageData.message);
+        this.eventBus.$emit(messageData.event, messageData);
     },
 
     onSocketEvent(target, event) {
         if (target === 'SOCKET_ONOPEN') {
             this.authorizeSocket();
         } else if (target === 'SOCKET_ONMESSAGE') {
-            this.addMessage(event)
+            this.emitSocketEvent(event)
         }
     },
 
