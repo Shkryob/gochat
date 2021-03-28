@@ -1,0 +1,24 @@
+html, body, #app, .v-application--wrap, main, .v-main__wrap {
+    height: 100%;
+    overflow: hidden;
+}
+
+.show-on-hover {
+    display: none;
+}
+
+*:hover > .show-on-hover {
+    display: block;
+}
+
+.v-chip.indigo {
+    color: white;
+}
+
+.v-chip.indigo a {
+    color: #e1e1ff;
+}
+
+.relative {
+    position: relative;
+}
