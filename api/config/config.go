@@ -8,6 +8,7 @@ import (
 
 type Configuration struct {
 	AuthRedirectUrl string
+	MaxChatParticipants int
 }
 
 func ReadConfig() Configuration {

@@ -17,9 +17,13 @@ type User struct {
 	Blacklists []Blacklist  `gorm:"foreignkey:FromID"`
 	Friends    []Friend     `gorm:"foreignkey:FromID"`
 	Chats      []Chat 		`gorm:"many2many:chat_user;"`
+
+	BlacklistedBy []Blacklist `gorm:"foreignkey:ToID"`
 }
 
 type Blacklist struct {
+	gorm.Model
+
 	From    User
 	FromID  uint `gorm:"primary_key" sql:"type:int not null"`
 	To   	User
@@ -27,6 +31,8 @@ type Blacklist struct {
 }
 
 type Friend struct {
+	gorm.Model
+
 	From    User
 	FromID  uint `gorm:"primary_key" sql:"type:int not null"`
 	To   	User

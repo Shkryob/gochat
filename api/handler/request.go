@@ -49,7 +49,8 @@ func (r *userLoginRequest) bind(c echo.Context) error {
 
 type chatCreateRequest struct {
 	Chat struct {
-		Title string `json:"title" validate:"required"`
+		Title string `json:"title"`
+		Participants []uint
 	} `json:"chat"`
 }
 

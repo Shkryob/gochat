@@ -4,14 +4,20 @@
       color="indigo"
       dark
   >
+    <v-btn @click="toggleLeftMenu()"
+           light
+           class="ml-2 hidden-md-and-up"
+           v-if="['chat', 'chats'].indexOf($route.name) > -1"
+           color="white">
+      <v-icon>mdi-menu</v-icon>
+    </v-btn>
+    <v-spacer class="hidden-md-and-up"></v-spacer>
     <div class="d-flex align-center">
-      <router-link :to="{name: 'chat'}">
-        <v-img
+      <router-link :to="{name: 'chats'}" class="logo">
+        <img
             alt="Vuetify Logo"
-            class="shrink mr-2"
-            contain
+            class="shrink mr-2 hidden-sm-and-down"
             src="/logo.svg"
-            transition="scale-transition"
             width="40"
         />
         GoChat
@@ -20,16 +26,24 @@
 
     <v-spacer></v-spacer>
 
-    <router-link :to="{name: 'profile'}" v-if="sharedState.user">
-      <span class="mr-2">{{sharedState.user.username}}</span>
+    <v-btn :to="{name: 'profile'}" v-if="sharedState.user" light color="white">
+      <span class="mr-2 hidden-sm-and-down">{{sharedState.user.username}}</span>
       <v-icon>mdi-account-circle</v-icon>
-    </router-link>
-    <v-btn @click="logout()" v-if="sharedState.user" light>
-      <v-icon left>mdi-logout</v-icon>
-      Logout
+    </v-btn>
+    <v-btn @click="logout()" v-if="sharedState.user" light class="ml-2" color="white">
+      <span class="mr-2 hidden-sm-and-down">Logout</span>
+      <v-icon>mdi-logout</v-icon>
     </v-btn>
   </v-app-bar>
 </template>
+
+<style>
+.v-application a.logo {
+  font-size: 38px;
+  color: white;
+  text-decoration: none;
+}
+</style>
 
 <script>
 import store from "../store";
@@ -37,17 +51,21 @@ import store from "../store";
 export default {
   name: 'Header',
 
-  data: function () {
+  data() {
     return {
       sharedState: store.state
     };
   },
 
   methods: {
-    logout: function () {
+    logout() {
       store.setUser(null);
       this.$router.push({'name': 'login'})
-    }
+    },
+
+    toggleLeftMenu() {
+      store.toggleLeftMenu();
+    },
   }
 };
 </script>
