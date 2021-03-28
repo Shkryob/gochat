@@ -178,7 +178,8 @@ func (handler *Handler) GetMessages(context echo.Context) error {
 	id64, err := strconv.ParseUint(context.Param("chat_id"), 10, 32)
 	id := uint(id64)
 
-	cm, err := handler.chatStore.GetMessagesByChatId(id)
+	curUser, _ := handler.GetCurrentUser(context)
+	cm, err := handler.chatStore.GetMessagesByChatId(id, curUser)
 	if err != nil {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
@@ -268,4 +269,9 @@ func (handler *Handler) ValidateParticipants(participants []uint) error  {
 	}
 
 	return nil
+}
+
+func (handler *Handler) GetCurrentUser(context echo.Context) (*model.User, error) {
+	userID := userIDFromToken(context)
+	return handler.userStore.GetByID(userID)
 }

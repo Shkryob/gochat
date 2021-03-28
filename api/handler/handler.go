@@ -17,10 +17,10 @@ type ChatStore interface {
 	CreateChat(*model.Chat) error
 	UpdateChat(*model.Chat) error
 	DeleteChat(*model.Chat) error
-	ReplaceParticipants(*model.Chat,*[]model.User) error
+	ReplaceParticipants(*model.Chat, *[]model.User) error
 
 	AddMessage(*model.Chat, *model.Message) error
-	GetMessagesByChatId(uint) ([]model.Message, error)
+	GetMessagesByChatId(uint, *model.User) ([]model.Message, error)
 	GetMessageByID(uint) (*model.Message, error)
 	DeleteMessage(*model.Message) error
 	UpdateMessage(*model.Message) error

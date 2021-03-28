@@ -17,7 +17,7 @@ func NewUserStore(db *gorm.DB) *UserStore {
 
 func (us *UserStore) GetByID(id uint) (*model.User, error) {
 	var m model.User
-	if err := us.db.First(&m, id).Error; err != nil {
+	if err := us.db.Preload("Blacklists").First(&m, id).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, nil
 		}

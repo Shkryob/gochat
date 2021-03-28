@@ -121,9 +121,23 @@ func (chatStore *ChatStore) UpdateMessage(m *model.Message) error {
 	return tx.Commit().Error
 }
 
-func (chatStore *ChatStore) GetMessagesByChatId(id uint) ([]model.Message, error) {
+func (chatStore *ChatStore) GetMessagesByChatId(id uint, curUser *model.User) ([]model.Message, error) {
 	var c model.Chat
-	err := chatStore.db.Where(id).Preload("Messages").Preload("Messages.User").First(&c).Error
+	blacklist := curUser.Blacklists
+	var blacklistIDs []uint
+	for _, user := range blacklist {
+		blacklistIDs = append(blacklistIDs, user.ToID)
+	}
+
+	query := chatStore.db.Where(id)
+	if len(blacklist) > 0 {
+		query = query.Preload(
+			"Messages", "user_id NOT IN (?)", blacklistIDs,
+		)
+	} else {
+		query = query.Preload("Messages")
+	}
+	err := query.Preload("Messages.User").First(&c).Error
 
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
