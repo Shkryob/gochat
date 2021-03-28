@@ -37,14 +37,13 @@ export default {
     Avatar,
   },
 
-  data: function () {
-    return {
-      user: {},
-    };
-  },
+  props: ['user'],
+
 
   created() {
-    this.getUser();
+    if (!this.user) {
+      this.getUser();
+    }
   },
 
   methods: {
@@ -60,11 +59,11 @@ export default {
 
     toggleFriends() {
       if (this.user.friends) {
-        (new api()).removeFriend(this.$route.params.id).then(() => {
+        (new api()).removeFriend(this.user.id).then(() => {
           this.user.friends = false;
         });
       } else {
-        (new api()).addFriend(this.$route.params.id).then(() => {
+        (new api()).addFriend(this.user.id).then(() => {
           this.user.friends = true;
         });
       }
@@ -72,11 +71,11 @@ export default {
 
     toggleBlacklist() {
       if (this.user.blacklisted) {
-        (new api()).removeBlacklist(this.$route.params.id).then(() => {
+        (new api()).removeBlacklist(this.user.id).then(() => {
           this.user.blacklisted = false;
         });
       } else {
-        (new api()).addBlacklist(this.$route.params.id).then(() => {
+        (new api()).addBlacklist(this.user.id).then(() => {
           this.user.blacklisted = true;
         });
       }
