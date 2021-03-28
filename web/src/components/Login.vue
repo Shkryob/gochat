@@ -41,6 +41,8 @@ export default {
     login: function ($event) {
       $event.preventDefault();
 
+      this.$notification.requestPermission();
+
       (new api()).login(this.email, this.password).then((response) => {
         store.setUser(response.data.user);
         this.$router.push('/');

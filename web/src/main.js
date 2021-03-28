@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueNativeSock from 'vue-native-websocket';
+import VueNativeNotification from 'vue-native-notification';
 
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
@@ -28,6 +29,12 @@ Vue.use(VueNativeSock, 'ws://localhost/api/sockets', {
 
     this.store['onSocketEvent'](target, event);
   },
+});
+
+Vue.use(VueNativeNotification, {
+  // Automatic permission request before
+  // showing notification (default: true)
+  requestOnNotify: true
 });
 
 new Vue({

@@ -27,6 +27,7 @@ const store = {
 
             return config;
         });
+
     },
 
     restoreUserFromStorage() {
@@ -119,7 +120,6 @@ const store = {
 
     toggleLeftMenu() {
         this.state.showLeftMenu = !this.state.showLeftMenu;
-        console.log('this.state.showLeftMenu', this.state.showLeftMenu);
         this.eventBus.$emit('toggle-left-menu', this.state.showLeftMenu);
     },
 }
