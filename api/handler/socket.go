@@ -103,8 +103,17 @@ func BroadcastChatCreated(chat *model.Chat, message *SingleChatResponse)  {
 	}
 }
 
-func BroadcastMessage(chat *model.Chat, message *SingleMessageResponse)  {
+func BroadcastMessage(chat *model.Chat, message *SingleMessageResponse, blacklistedBy []model.Blacklist)  {
+	var blacklistIDs []uint
+	for _, user := range blacklistedBy {
+		blacklistIDs = append(blacklistIDs, user.FromID)
+	}
+
 	for _, user := range chat.Users {
+		_, found := Find(blacklistIDs, user.ID)
+		if found {
+			continue
+		}
 		if sockets, ok := connectionPool.connections[user.ID]; ok {
 			for socket, _ := range sockets {
 				b, _ := json.MarshalIndent(message, "", "\t")
@@ -114,4 +123,13 @@ func BroadcastMessage(chat *model.Chat, message *SingleMessageResponse)  {
 			}
 		}
 	}
+}
+
+func Find(slice []uint, val uint) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
 }

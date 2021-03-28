@@ -169,7 +169,8 @@ func (handler *Handler) AddMessage(context echo.Context) error {
 	}
 
 	response := newMessageResponse(context, &cm, "message_created")
-	BroadcastMessage(chat, response)
+	curUser, _ := handler.GetCurrentUser(context)
+	BroadcastMessage(chat, response, curUser.BlacklistedBy)
 
 	return utils.ResponseByContentType(context, http.StatusCreated, response)
 }
@@ -214,7 +215,8 @@ func (handler *Handler) DeleteMessage(context echo.Context) error {
 	}
 
 	messageResponse := newMessageResponse(context, cm, "message_deleted")
-	BroadcastMessage(chat, messageResponse)
+	curUser, _ := handler.GetCurrentUser(context)
+	BroadcastMessage(chat, messageResponse, curUser.BlacklistedBy)
 
 	return utils.ResponseByContentType(context, http.StatusOK, map[string]interface{}{"result": "ok"})
 }
@@ -254,7 +256,8 @@ func (handler *Handler) UpdateMessage(context echo.Context) error {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
 	}
 	messageResponse := newMessageResponse(context, &cm, "message_updated")
-	BroadcastMessage(chat, messageResponse)
+	curUser, _ := handler.GetCurrentUser(context)
+	BroadcastMessage(chat, messageResponse, curUser.BlacklistedBy)
 
 	return utils.ResponseByContentType(context, http.StatusCreated, messageResponse)
 }
