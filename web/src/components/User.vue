@@ -37,7 +37,7 @@ export default {
     Avatar,
   },
 
-  props: ['user'],
+  props: {user: Object},
 
   data() {
     return {
