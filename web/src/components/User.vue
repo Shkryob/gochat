@@ -1,21 +1,21 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col v-if="user">
-        <h1 class="text-center">{{ user.username }}<Avatar :id="user.id" /></h1>
+      <v-col v-if="userData">
+        <h1 class="text-center">{{ userData.username }}<Avatar :id="userData.id" /></h1>
         <v-row>
           <v-col class="text-right">
-            <v-icon @click="startChat(user)">
+            <v-icon @click="startChat(userData)">
               mdi-message-outline
             </v-icon>
           </v-col>
           <v-col class="text-center">
-            <v-icon @click="toggleFriends(user)" :color="user.friends ? 'red' : ''">
+            <v-icon @click="toggleFriends(userData)" :color="userData.friends ? 'red' : ''">
               mdi-heart-outline
             </v-icon>
           </v-col>
           <v-col>
-            <v-icon @click="toggleBlacklist(user)" :color="user.blacklisted ? 'red' : ''">
+            <v-icon @click="toggleBlacklist(userData)" :color="userData.blacklisted ? 'red' : ''">
               mdi-block-helper
             </v-icon>
           </v-col>
@@ -37,11 +37,18 @@ export default {
     Avatar,
   },
 
-  props: ['user'],
+  props: {user: Object},
 
+  data() {
+    return {
+      userData: {},
+    };
+  },
 
   created() {
-    if (!this.user) {
+    if (this.user) {
+      this.userData = this.user;
+    } else {
       this.getUser();
     }
   },
@@ -49,34 +56,34 @@ export default {
   methods: {
     getUser() {
       (new api()).getUser(this.$route.params.id).then((response) => {
-        this.user = response.data;
+        this.userData = response.data;
       });
     },
 
     startChat() {
-      (new api()).createChat([this.user.id]).then(() => {});
+      (new api()).createChat([this.userData.id]).then(() => {});
     },
 
     toggleFriends() {
-      if (this.user.friends) {
-        (new api()).removeFriend(this.user.id).then(() => {
-          this.user.friends = false;
+      if (this.userData.friends) {
+        (new api()).removeFriend(this.userData.id).then(() => {
+          this.userData.friends = false;
         });
       } else {
-        (new api()).addFriend(this.user.id).then(() => {
-          this.user.friends = true;
+        (new api()).addFriend(this.userData.id).then(() => {
+          this.userData.friends = true;
         });
       }
     },
 
     toggleBlacklist() {
-      if (this.user.blacklisted) {
-        (new api()).removeBlacklist(this.user.id).then(() => {
-          this.user.blacklisted = false;
+      if (this.userData.blacklisted) {
+        (new api()).removeBlacklist(this.userData.id).then(() => {
+          this.userData.blacklisted = false;
         });
       } else {
-        (new api()).addBlacklist(this.user.id).then(() => {
-          this.user.blacklisted = true;
+        (new api()).addBlacklist(this.userData.id).then(() => {
+          this.userData.blacklisted = true;
         });
       }
     },

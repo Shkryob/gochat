@@ -2,9 +2,13 @@
   <span>
     <v-avatar size="128">
       <img
+          v-if="src"
           :src="src"
           alt="John"
       >
+      <v-icon color="darken-3" size="128" v-if="!src">
+        mdi-account-circle-outline
+      </v-icon>
     </v-avatar>
   </span>
 </template>
@@ -19,7 +23,7 @@ export default {
       src: '',
     };
   },
-  props: ['id'],
+  props: {id: Number},
 
   created: function () {
     this.loadAvatar();

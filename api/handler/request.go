@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/shkryob/gochat/model"
+	"github.com/shkryob/gochat/utils"
 )
 
 type userRegisterRequest struct {
@@ -22,7 +23,7 @@ func (request *userRegisterRequest) bind(context echo.Context, user *model.User)
 	}
 	user.Username = request.User.Username
 	user.Email = request.User.Email
-	h, err := user.HashPassword(request.User.Password)
+	h, err := utils.HashPassword(request.User.Password)
 	if err != nil {
 		return err
 	}

@@ -15,6 +15,7 @@ func (handler *Handler) GetChat(context echo.Context) error {
 	id64, err := strconv.ParseUint(context.Param("chat_id"), 10, 32)
 	id := uint(id64)
 	chat, err := handler.chatStore.GetById(id)
+	curUserID := userIDFromToken(context)
 
 	if err != nil {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
@@ -22,6 +23,10 @@ func (handler *Handler) GetChat(context echo.Context) error {
 
 	if chat == nil {
 		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
+	}
+
+	if !hasAccess(chat, curUserID) {
+		return utils.ResponseByContentType(context, http.StatusForbidden, utils.AccessForbidden())
 	}
 
 	return utils.ResponseByContentType(context, http.StatusOK, newChatResponse(context, chat, ""))
@@ -43,7 +48,8 @@ func (handler *Handler) GetChats(context echo.Context) error {
 		limit = 20
 	}
 
-	chats, count, err = handler.chatStore.List(offset, limit)
+	user, _ := handler.GetCurrentUser(context)
+	chats, count, err = handler.chatStore.List(offset, limit, user)
 
 	return utils.ResponseByContentType(context, http.StatusOK, newChatListResponse(chats, count))
 }
@@ -78,6 +84,7 @@ func (handler *Handler) CreateChat(context echo.Context) error {
 
 	chatResponse := newChatResponse(context, &chat, "chat_created")
 	BroadcastChatCreated(&chat, chatResponse)
+
 	return utils.ResponseByContentType(context, http.StatusCreated, chatResponse)
 }
 
@@ -141,6 +148,7 @@ func (handler *Handler) DeleteChat(context echo.Context) error {
 func (handler *Handler) AddMessage(context echo.Context) error {
 	id64, err := strconv.ParseUint(context.Param("chat_id"), 10, 32)
 	id := uint(id64)
+	curUserID := userIDFromToken(context)
 
 	chat, err := handler.chatStore.GetById(id)
 	if err != nil {
@@ -149,6 +157,10 @@ func (handler *Handler) AddMessage(context echo.Context) error {
 
 	if chat == nil {
 		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
+	}
+
+	if !hasAccess(chat, curUserID) {
+		return utils.ResponseByContentType(context, http.StatusForbidden, utils.AccessForbidden())
 	}
 
 	var cm model.Message
@@ -180,6 +192,20 @@ func (handler *Handler) GetMessages(context echo.Context) error {
 	id := uint(id64)
 
 	curUser, _ := handler.GetCurrentUser(context)
+
+	chat, err := handler.chatStore.GetById(id)
+	if err != nil {
+		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
+	}
+
+	if chat == nil {
+		return utils.ResponseByContentType(context, http.StatusNotFound, utils.NotFound())
+	}
+
+	if !hasAccess(chat, curUser.ID) {
+		return utils.ResponseByContentType(context, http.StatusForbidden, utils.AccessForbidden())
+	}
+
 	cm, err := handler.chatStore.GetMessagesByChatId(id, curUser)
 	if err != nil {
 		return utils.ResponseByContentType(context, http.StatusInternalServerError, utils.NewError(err))
@@ -276,5 +302,20 @@ func (handler *Handler) ValidateParticipants(participants []uint) error  {
 
 func (handler *Handler) GetCurrentUser(context echo.Context) (*model.User, error) {
 	userID := userIDFromToken(context)
+
 	return handler.userStore.GetByID(userID)
+}
+
+func hasAccess(chat *model.Chat, userID uint) bool  {
+	if chat.AdminID == userID {
+		return true
+	}
+
+	for _, user := range chat.Users {
+		if userID == user.ID {
+			return true
+		}
+	}
+
+	return false
 }
