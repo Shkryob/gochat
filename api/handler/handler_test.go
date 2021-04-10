@@ -44,6 +44,7 @@ func setup() {
 	cs = store.NewChatStore(d)
 	conf := config.ReadConfig()
 	h = NewHandler(conf, us, cs)
+	h.config.MaxChatParticipants = 5
 	e = router.New()
 	loadFixtures()
 }
