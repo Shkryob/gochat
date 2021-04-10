@@ -39,7 +39,7 @@
               <router-link :to="{name: 'user', params: {id: message.user.id}}" class="ml-1">
                 {{ message.user.username }}
               </router-link>:
-              {{ message.body }}
+              <span :inner-html.prop="message.body | markdown" class="ml-1"></span>
             </v-chip>
         </v-row>
       </v-col>
@@ -107,7 +107,9 @@
         <v-col sm="12" md="8" lg="9" :class="{'hidden-sm-and-down': showLeftMenu}">
           <v-row>
             <v-col :cols="editMode ? 7 : 10">
+              <form @submit="sendMessage">
               <v-text-field label="Message" v-model="messageText"/>
+              </form>
             </v-col>
             <v-col :cols="editMode ? 5 : 2" class="pt-5 text-right">
               <v-btn block color="indigo" dark @click="sendMessage" class="hidden-sm-and-down" v-if="!editMode">
@@ -328,7 +330,10 @@ export default {
       this.editMode = true;
     },
 
-    sendMessage() {
+    sendMessage(event) {
+      if (event) {
+        event.preventDefault();
+      }
       (new api()).sendMessage(this.selectedItem, this.messageText).then(() => {
         this.messageText = '';
       });

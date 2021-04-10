@@ -36,7 +36,7 @@ func (handler *Handler) Login(context echo.Context) error {
 	if u == nil {
 		return utils.ResponseByContentType(context, http.StatusForbidden, utils.AccessForbidden())
 	}
-	if !u.CheckPassword(req.User.Password) {
+	if !utils.CheckPassword(u.Password, req.User.Password) {
 		return utils.ResponseByContentType(context, http.StatusForbidden, utils.AccessForbidden())
 	}
 	return utils.ResponseByContentType(context, http.StatusOK, newUserResponse(u))

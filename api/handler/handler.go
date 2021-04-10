@@ -13,7 +13,7 @@ type Handler struct {
 
 type ChatStore interface {
 	GetById(uint) (*model.Chat, error)
-	List(int, int) ([]model.Chat, int, error)
+	List(int, int, *model.User) ([]model.Chat, int, error)
 	CreateChat(*model.Chat) error
 	UpdateChat(*model.Chat) error
 	DeleteChat(*model.Chat) error

@@ -30,18 +30,25 @@ func (chatStore *ChatStore) GetById(id uint) (*model.Chat, error) {
 	return &m, err
 }
 
-func (chatStore *ChatStore) List(offset, limit int) ([]model.Chat, int, error) {
+func (chatStore *ChatStore) List(offset, limit int, user *model.User) ([]model.Chat, int, error) {
 	var (
 		chats []model.Chat
 		count int
 	)
 
-	chatStore.db.Model(&chats).Count(&count)
+	chatStore.db.Model(&chats).
+		Joins("inner join chat_user on chat_user.chat_id = chats.id").
+		Where("chat_user.user_id > ?", user.ID, user.ID).
+		Count(&count)
+
 	chatStore.db.Offset(offset).
 		Limit(limit).
 		Preload("Users").
 		Preload("Admin").
-		Order("created_at desc").Find(&chats)
+		Order("created_at desc").
+		Joins("inner join chat_user on chat_user.chat_id = chats.id").
+		Where("chat_user.user_id > ?", user.ID, user.ID).
+		Find(&chats)
 
 	return chats, count, nil
 }
